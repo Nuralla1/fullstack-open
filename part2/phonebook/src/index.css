@@ -1,0 +1,17 @@
+.success {
+  border: 5px solid green;
+  background-color: rgb(180, 175, 175);
+  color: rgb(3, 111, 3);
+  padding: 0.5em;
+  margin: 0.5em;
+  border-radius: 1em;
+}
+
+.error {
+  border: 5px solid rgb(208, 3, 3);
+  background-color: rgb(180, 175, 175);
+  color: rgb(83, 3, 3);
+  padding: 0.5em;
+  margin: 0.5em;
+  border-radius: 1em;
+}
