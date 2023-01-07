@@ -9,6 +9,7 @@ const PersonForm = ({
   setPersons,
   persons,
   setNotificationMessage,
+  setNotificationIsError,
 }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,27 +23,38 @@ const PersonForm = ({
       ) {
         service
           .update({ ...matchedPerson, number: newPhone })
-          .then((updatedPerson) =>
+          .then((updatedPerson) => {
+            setNotificationIsError(false);
+            setNotificationMessage(`Updated ${newName}'s phone number`);
+            setTimeout(() => {
+              setNotificationMessage(null);
+            }, 3000);
             setPersons(
               persons.map((p) =>
                 p.id === updatedPerson.id ? updatedPerson : p
               )
-            )
-          )
+            );
+          })
           .catch((err) => {
-            console.log("update err", err);
+            if (err.response.data.error.includes("Validation")) {
+              setNotificationIsError(true);
+              setNotificationMessage(`${err.response.data.error}`);
+              setTimeout(() => {
+                setNotificationMessage(null);
+                setNotificationIsError(false);
+              }, 3000);
+              return;
+            }
+            setNotificationIsError(true);
             setNotificationMessage(
               `Error: ${newName} has already been removed from server`
             );
             setTimeout(() => {
               setNotificationMessage(null);
+              setNotificationIsError(false);
             }, 3000);
             setPersons(persons.filter((p) => p.id !== matchedPerson.id));
           });
-        setNotificationMessage(`Updated ${newName}'s phone number`);
-        setTimeout(() => {
-          setNotificationMessage(null);
-        }, 3000);
       }
       setNewName("");
       setNewPhone("");
@@ -51,11 +63,22 @@ const PersonForm = ({
 
     service
       .create(newName, newPhone)
-      .then((newPerson) => setPersons(persons.concat(newPerson)));
-    setNotificationMessage(`Added ${newName} to the contact list`);
-    setTimeout(() => {
-      setNotificationMessage(null);
-    }, 3000);
+      .then((newPerson) => {
+        setPersons(persons.concat(newPerson));
+        setNotificationIsError(false);
+        setNotificationMessage(`Added ${newName} to the contact list`);
+        setTimeout(() => {
+          setNotificationMessage(null);
+        }, 3000);
+      })
+      .catch((err) => {
+        setNotificationIsError(true);
+        setNotificationMessage(`${err.response.data.error}`);
+        setTimeout(() => {
+          setNotificationMessage(null);
+          setNotificationIsError(false);
+        }, 3000);
+      });
 
     setNewName("");
     setNewPhone("");
